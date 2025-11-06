@@ -25,12 +25,12 @@ Le but est d’expérimenter les **concepts de la programmation orientée objet 
 
 ## 🏗️ Structure du projet
 
-jeu-rpg/
+projet_rpg/
 │
 ├── application/
-│ └── JeuRPG.java # Classe principale contenant le main()
+│   └── JeuRPG.java         (contient: package application;)
 │
 └── metiers/
-├── Personnage.java # Classe abstraite représentant un personnage
-├── Joueur.java # Classe représentant le joueur (hérite de Personnage)
-└── Monstre.java # Classe représentant un monstre (hérite de Personnage)
+    ├── Personnage.java     (contient: package metiers;)
+    ├── Joueur.java         (contient: package metiers;)
+    └── Monstre.java        (contient: package metiers;)
