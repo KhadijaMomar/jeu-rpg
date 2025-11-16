@@ -31,6 +31,27 @@ public class Joueur extends Personnage {
         System.out.println(nom + " gagne " + montant + " pièces d’or. (Total: " + argent + ")");
     }
 
+    // --- Ajoutés : méthodes d'accès à l'argent et équipement d'armes ---
+    public int getArgent() { return argent; }
+
+    public boolean retirerArgent(int montant) {
+        if (montant <= argent) {
+            argent -= montant;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Équipe une arme : applique son bonus de dégâts à l'attaque du joueur.
+     * Ceci est simple : on ajoute les dégâts de l'arme à l'attaque actuelle.
+     */
+    public void equiperArme(Armes a) {
+        if (a == null) return;
+        attaque += a.getDegats();
+        System.out.println(nom + " équipe " + a.getNom() + " (ATK = " + attaque + ")");
+    }
+
     @Override
     public void afficherStats() {
         System.out.println("=== Stats du joueur ===");

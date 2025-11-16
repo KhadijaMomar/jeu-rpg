@@ -11,14 +11,25 @@ public class JeuRPG {
         System.out.print("Entrez le nom de votre héros : ");
         String nom = sc.nextLine();
 
-        Joueur joueur = new Joueur(nom);
+    Joueur joueur = new Joueur(nom);
+
+    // Créer une armurerie avec quelques armes disponibles
+    Armurerie armurerie = new Armurerie(
+        new Marteau("Marteau basique", 5),
+        new Arc("Arc en bois", 3),
+        new Hache("Hache rouillée", 4)
+    );
+
+    // Prix (gérés dans main pour éviter de modifier les classes d'armes existantes)
+    int[] prixArmurerie = new int[] { 20, 15, 18 }; // marteau, arc, hache
 
         boolean continuer = true;
         while (continuer) {
             System.out.println("\n--- MENU ---");
             System.out.println("1. Afficher les statistiques");
             System.out.println("2. Combattre un monstre");
-            System.out.println("3. Quitter");
+            System.out.println("3. Visiter l'armurerie");
+            System.out.println("4. Quitter");
             System.out.print("Choix : ");
             int choix = sc.nextInt();
 
@@ -32,6 +43,51 @@ public class JeuRPG {
                 }
 
                 case 3 -> {
+                    // Menu de l'armurerie
+                    System.out.println("\n--- ARMURERIE ---");
+                    System.out.println("1. Voir les armes");
+                    System.out.println("2. Acheter une arme");
+                    System.out.println("3. Retour");
+                    System.out.print("Choix : ");
+                    int choixA = sc.nextInt();
+
+                    Armes[] produits = new Armes[] { armurerie.getMarteau(), armurerie.getArc(), armurerie.getHache() };
+
+                    if (choixA == 1) {
+                        System.out.println("Armes disponibles :");
+                        for (int i = 0; i < produits.length; i++) {
+                            System.out.println((i+1) + ". " + produits[i].getNom() + " (Degats: " + produits[i].getDegats() + ") - Prix: " + prixArmurerie[i] + " pièces");
+                        }
+                    } else if (choixA == 2) {
+                        System.out.println("Quelle arme voulez-vous acheter ? (1-3)");
+                        for (int i = 0; i < produits.length; i++) {
+                            System.out.println((i+1) + ". " + produits[i].getNom() + " - Prix: " + prixArmurerie[i]);
+                        }
+                        System.out.print("Votre choix : ");
+                        int choixProduit = sc.nextInt();
+                        if (choixProduit < 1 || choixProduit > produits.length) {
+                            System.out.println("Choix invalide.");
+                        } else {
+                            int idx = choixProduit - 1;
+                            int prix = prixArmurerie[idx];
+                            Armes a = produits[idx];
+                            if (joueur.getArgent() < prix) {
+                                System.out.println("Vous n'avez pas assez d'argent (vous avez " + joueur.getArgent() + ").");
+                            } else {
+                                // Retirer l'argent et appliquer l'arme
+                                boolean payé = joueur.retirerArgent(prix);
+                                if (payé) {
+                                    joueur.equiperArme(a);
+                                    System.out.println("Achat réussi : " + a.getNom() + " (coût : " + prix + ")");
+                                } else {
+                                    System.out.println("Erreur lors du paiement.");
+                                }
+                            }
+                        }
+                    }
+                }
+
+                case 4 -> {
                     System.out.println("Merci d’avoir joué !");
                     continuer = false;
                 }
