@@ -1,10 +1,23 @@
 package metiers;
-public abstract class Armes {
-	/** Retourne le nom de l'arme */
-	public abstract String getNom();
 
-	/** Retourne les dégâts apportés par l'arme */
-	public abstract int getDegats();
+
+public abstract class Armes {
+	private String nom;
+	private int degats;
+
+	
+	public Armes(String nom, int degats) {
+		this.nom = nom;
+		this.degats = degats;
+	}
+
+	public String getNom() {
+		return nom;
+	}
+
+	public int getDegats() {
+		return degats;
+	}
 
 	@Override
 	public String toString() {
