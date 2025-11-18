@@ -1,138 +1,75 @@
+
 package application;
 
-import metiers.*;
+import metiers.Arc;
+import metiers.Arme;
+import metiers.Hache;
+import metiers.Joueur;
+import metiers.Marteau;
+import metiers.Donjon;  
+import metiers.PotionDeVie; 
 import java.util.Scanner;
 
 public class JeuRPG {
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("------------------------------------------");
+        System.out.println("   Bienvenue dans le Donjon des Ombres !   ");
+        System.out.println("------------------------------------------");
+        
+        // 1. Initialisation des Armes
+        Arme marteau = new Marteau("Marteau de Thor", 15);
+        
+        // 2. Création du Joueur (avec l'Arme et la position de départ)
+        int startX = 1;
+        int startY = 1;
+   
+        Joueur joueur = new Joueur("Aventureux", 100, 1, 0, marteau, startX, startY); 
 
-        System.out.println("=== MINI JEU RPG ===");
-        System.out.print("Entrez le nom de votre héros : ");
-        String nom = sc.nextLine();
+        // 3. Création du Donjon
+        Donjon donjon = new Donjon(startX, startY); 
+        
+        System.out.println("Joueur: " + joueur.getNom() + " | Arme: " + joueur.getArme().getNom());
 
-    Joueur joueur = new Joueur(nom);
-
-    // Créer une armurerie avec quelques armes disponibles
-    Armurerie armurerie = new Armurerie(
-        new Marteau("Marteau basique", 5),
-        new Arc("Arc en bois", 3),
-        new Hache("Hache rouillée", 4)
-    );
-
-    // Prix (gérés dans main pour éviter de modifier les classes d'armes existantes)
-    int[] prixArmurerie = new int[] { 20, 15, 18 }; // marteau, arc, hache
-
-        boolean continuer = true;
-        while (continuer) {
-            System.out.println("\n--- MENU ---");
-            System.out.println("1. Afficher les statistiques");
-            System.out.println("2. Combattre un monstre");
-            System.out.println("3. Visiter l'armurerie");
-            System.out.println("4. Quitter");
-            System.out.print("Choix : ");
-            int choix = sc.nextInt();
-
-            switch (choix) {
-                case 1 -> joueur.afficherStats();
-
-                case 2 -> {
-                    Monstre monstre = Monstre.genererAleatoire();
-                    System.out.println("\nUn " + monstre.getNom() + " apparaît !");
-                    combat(joueur, monstre);
-                }
-
-                case 3 -> {
-                    // Menu de l'armurerie
-                    System.out.println("\n--- ARMURERIE ---");
-                    System.out.println("1. Voir les armes");
-                    System.out.println("2. Acheter une arme");
-                    System.out.println("3. Retour");
-                    System.out.print("Choix : ");
-                    int choixA = sc.nextInt();
-
-                    Armes[] produits = new Armes[] { armurerie.getMarteau(), armurerie.getArc(), armurerie.getHache() };
-
-                    if (choixA == 1) {
-                        System.out.println("Armes disponibles :");
-                        for (int i = 0; i < produits.length; i++) {
-                            System.out.println((i+1) + ". " + produits[i].getNom() + " (Degats: " + produits[i].getDegats() + ") - Prix: " + prixArmurerie[i] + " pièces");
-                        }
-                    } else if (choixA == 2) {
-                        System.out.println("Quelle arme voulez-vous acheter ? (1-3)");
-                        for (int i = 0; i < produits.length; i++) {
-                            System.out.println((i+1) + ". " + produits[i].getNom() + " - Prix: " + prixArmurerie[i]);
-                        }
-                        System.out.print("Votre choix : ");
-                        int choixProduit = sc.nextInt();
-                        if (choixProduit < 1 || choixProduit > produits.length) {
-                            System.out.println("Choix invalide.");
-                        } else {
-                            int idx = choixProduit - 1;
-                            int prix = prixArmurerie[idx];
-                            Armes a = produits[idx];
-                            if (joueur.getArgent() < prix) {
-                                System.out.println("Vous n'avez pas assez d'argent (vous avez " + joueur.getArgent() + ").");
-                            } else {
-                                // Retirer l'argent et appliquer l'arme
-                                boolean payé = joueur.retirerArgent(prix);
-                                if (payé) {
-                                    joueur.equiperArme(a);
-                                    System.out.println("Achat réussi : " + a.getNom() + " (coût : " + prix + ")");
-                                } else {
-                                    System.out.println("Erreur lors du paiement.");
-                                }
-                            }
-                        }
-                    }
-                }
-
-                case 4 -> {
-                    System.out.println("Merci d’avoir joué !");
-                    continuer = false;
-                }
-
-                default -> System.out.println("Choix invalide !");
+        boolean enJeu = true;
+        
+        while (enJeu) {
+            // Affichage du statut et de la carte
+            System.out.println("\n--- STATUT ---");
+            joueur.afficherStats(); 
+            donjon.afficherDonjon(joueur.getPos_x(), joueur.getPos_y());
+            
+            // Demande de déplacement
+            System.out.println("Où voulez-vous aller ? (Z:Haut / S:Bas / Q:Gauche / D:Droite / X:Quitter)");
+            System.out.print("Choix: ");
+            String move = scanner.nextLine().toUpperCase();
+            
+            if (move.equals("X")) {
+                enJeu = false;
+                break;
             }
-
+            
+            // Déplacement
+            boolean deplacementValide = donjon.deplacerJoueur(joueur, move);
+            
+            if (deplacementValide) {
+                // Gestion de l'événement à la nouvelle position
+                enJeu = donjon.gestionEvenement(joueur, scanner); 
+            }
+            
             if (joueur.estMort()) {
-                System.out.println("💀 Vous êtes mort... Game Over !");
-                continuer = false;
+                enJeu = false;
             }
         }
 
-        sc.close();
-    }
-
-    public static void combat(Joueur joueur, Monstre monstre) {
-        Scanner sc = new Scanner(System.in);
-        while (!joueur.estMort() && !monstre.estMort()) {
-            System.out.println("\n--- COMBAT ---");
-            joueur.afficherStats();
-            monstre.afficherStats();
-
-            System.out.println("1. Attaquer");
-            System.out.println("2. Fuir");
-            System.out.print("Choix : ");
-            int choix = sc.nextInt();
-
-            if (choix == 1) {
-                joueur.attaquer(monstre);
-                if (!monstre.estMort()) {
-                    monstre.attaquer(joueur);
-                }
-            } else if (choix == 2) {
-                System.out.println("Vous prenez la fuite !");
-                return;
-            } else {
-                System.out.println("Action invalide !");
-            }
+        System.out.println("\n--- JEU TERMINÉ ---");
+        if (joueur.estMort()) {
+             System.out.println("Votre aventure s'arrête ici. Game Over.");
+        } else if (!enJeu) {
+             System.out.println("Merci d'avoir joué !");
         }
-
-        if (monstre.estMort()) {
-            System.out.println("✅ Le " + monstre.getNom() + " est vaincu !");
-            joueur.gagnerXP(monstre.getXpDonnee());
-            joueur.gagnerArgent(monstre.getOrDonne());
-        }
+        
+        scanner.close();
     }
 }

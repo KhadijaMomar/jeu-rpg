@@ -1,29 +1,28 @@
 package metiers;
 
-import java.util.Random;
-
 public class Monstre extends Personnage {
     private int xpDonnee;
-    private int orDonne;
-
-    public Monstre(String nom, int pointsVie, int attaque, int xpDonnee, int orDonne) {
-        super(nom, pointsVie, attaque);
+    
+    public Monstre(String nom, int pointsVie, int attaque, int xpDonnee) {
+        super(nom, pointsVie, attaque); 
         this.xpDonnee = xpDonnee;
-        this.orDonne = orDonne;
+        System.out.println("Un " + nom + " apparaît ! PV: " + pointsVie);
+    }
+    
+
+    @Override
+    public int attaquer() {
+        System.out.println(this.getNom() + " attaque et inflige " + this.attaque + " dégâts !");
+        return this.attaque;
     }
 
-    public static Monstre genererAleatoire() {
-        Random rand = new Random();
-        int type = rand.nextInt(3);
-        switch (type) {
-            case 0: return new Monstre("Gobelin", 40, 8, 30, 10);
-            case 1: return new Monstre("Squelette", 60, 12, 50, 20);
-            default: return new Monstre("Ogre", 80, 15, 70, 30);
-        }
+    public int getExperience() { return xpDonnee; } 
+    
+   
+    @Override
+    public void recevoirDegats(int degats) { 
+        super.recevoirDegats(degats);
     }
-
-    public int getXpDonnee() { return xpDonnee; }
-    public int getOrDonne() { return orDonne; }
 
     @Override
     public void afficherStats() {
