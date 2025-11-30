@@ -1,4 +1,3 @@
-
 package metiers;
 
 import java.util.Random;
@@ -50,9 +49,16 @@ public class Joueur extends Personnage {
             System.out.println("*** Niveau " + niveau + " atteint ! ***");
         }
     }
+    
+    public void gagnerArgent(int montant) {
+        argent += montant;
+        System.out.println(this.nom + " gagne " + montant + " pièces d'argent !");
+    }
 
     public Arme getArme() { return armeEquipee; }
     public int getExperience() { return xp; }
+    public int getArgent() { return argent; } 
+    
     public int getNiveau() { return niveau; }
     public int getPos_x() { return pos_x; }
     public int getPos_y() { return pos_y; }

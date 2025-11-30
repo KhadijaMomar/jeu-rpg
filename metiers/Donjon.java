@@ -1,8 +1,6 @@
-
 package metiers;
 
 import java.util.Random;
-import java.util.Scanner;
 
 public class Donjon {
 
@@ -13,10 +11,12 @@ public class Donjon {
     private final char OBSTACLE = 'O'; 
     private final char SORTIE = 'S';
     private final char JOUEUR_SYMBOLE = 'P'; 
+    
+    private int cibleX; 
+    private int cibleY; 
 
-    public Donjon(int startX, int startY) { 
+    public Donjon() { 
         initialiserMatrice();
-
     }
 
     private void initialiserMatrice() {
@@ -36,146 +36,107 @@ public class Donjon {
             }
         }
     
-        matrice[TAILLE - 2][TAILLE - 2] = SORTIE; 
+        matrice[TAILLE - 1][TAILLE - 1] = SORTIE;
         matrice[1][1] = VIDE; 
     }
+
+    public void afficherDonjon() {
+    }
     
-    public void afficherDonjon(int joueurX, int joueurY) {
-        System.out.println("\n--- CARTE DU DONJON ---");
+    // Affichage pour la GUI
+    public String afficherDonjonGUI(int joueurX, int joueurY) { 
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < TAILLE; i++) {
             for (int j = 0; j < TAILLE; j++) {
                 if (i == joueurY && j == joueurX) {
-                    System.out.print(JOUEUR_SYMBOLE + " ");
+                    sb.append(JOUEUR_SYMBOLE).append(" ");
                 } else {
-                    System.out.print(matrice[i][j] + " ");
+                    sb.append(matrice[i][j]).append(" ");
                 }
             }
-            System.out.println();
+            sb.append("\n");
         }
-        System.out.println("Légende: P=Joueur, M=Monstre, S=Sortie, .=Vide");
+        return sb.toString();
     }
     
-    
-    public boolean deplacerJoueur(Joueur joueur, String direction) {
+    /**
+     * Vérifie si le déplacement est valide. 
+     * Déplace le joueur UNIQUEMENT si la case est VIDE.
+     * Pour Monstre ou Obstacle, elle retourne la case cible.
+     */
+    public char verifierEtDeplacerJoueur(Joueur joueur, char direction) {
         int newX = joueur.getPos_x();
         int newY = joueur.getPos_y();
-        
+
         switch (direction) {
-            case "Z": newY--; break;
-            case "S": newY++; break;
-            case "Q": newX--; break;
-            case "D": newX++; break;
-            default: return false;
+            case 'H':
+                newY--;
+                break;
+            case 'B':
+                newY++;
+                break;
+            case 'G':
+                newX--;
+                break;
+            case 'D':
+                newX++;
+                break;
         }
 
+        // 1. Vérification des limites de la carte
         if (newX < 0 || newX >= TAILLE || newY < 0 || newY >= TAILLE) {
-            System.out.println("Vous vous heurtez à un mur invisible.");
-            return false;
+            return 'X'; 
         }
-
-        char caseCible = matrice[newY][newX];
         
-        if (caseCible == VIDE || caseCible == SORTIE) {
+        // Sauvegarde de la cible avant déplacement (pour la GUI)
+        this.cibleX = newX;
+        this.cibleY = newY;
+        
+        char caseCible = matrice[newY][newX];
+
+        // 2. Déplacement immédiat si vide
+        if (caseCible == VIDE) {
             joueur.setPos_x(newX);
             joueur.setPos_y(newY);
-            return true;
-        } else if (caseCible == OBSTACLE) {
-            System.out.println("Un obstacle vous bloque le passage ('O').");
-            return false;
-        } else if (caseCible == MONSTRE) {
-            joueur.setPos_x(newX); 
-            joueur.setPos_y(newY);
-            return true; 
         }
-
-        return false;
-    }
-    
-
-    public boolean gestionEvenement(Joueur joueur, Scanner scanner) {
         
-        char evenement = this.matrice[joueur.getPos_y()][joueur.getPos_x()];
-
-        switch (evenement) {
-            case MONSTRE: 
-                System.out.println("\n⚔️ ATTENTION ! Un monstre apparaît ! Préparez-vous au combat !");
-                Monstre monstre = genererMonstreAleatoire(joueur.getNiveau());
-                boolean victoire = lancerCombat(joueur, monstre, scanner);
-                
-                if (victoire) {
-                    this.matrice[joueur.getPos_y()][joueur.getPos_x()] = VIDE; 
-                }
-                return victoire; 
-                
-            case SORTIE: 
-                System.out.println("\n🎉 VOUS AVEZ TROUVÉ LA SORTIE DU DONJON ! Victoire !");
-                return false; 
-                
-            case OBSTACLE: 
-                System.out.println("Un obstacle vous bloque! Pour le moment, il est détruit automatiquement.");
-                this.matrice[joueur.getPos_y()][joueur.getPos_x()] = VIDE;
-                return true; 
-                
-            case VIDE: 
-                return true; 
-                
-            default:
-                return true;
-        }
+        // 3. Retourne le type de case. La GUI gère l'événement (Combat, Destruction).
+        return caseCible;
     }
     
-
-    private boolean lancerCombat(Joueur joueur, Monstre monstre, Scanner scanner) {
-        System.out.println("--- DÉBUT DU COMBAT ---");
-
-        while (joueur.getPv() > 0 && monstre.getPv() > 0) {
-            System.out.println("\nQue voulez-vous faire ? (1: Attaquer / 2: Fuir)");
-            String choix = scanner.nextLine();
-
-            if (choix.equals("1")) {
-               
-                monstre.recevoirDegats(joueur.attaquer()); 
-                
-                if (monstre.getPv() <= 0) {
-                    System.out.println("\n--- VICTOIRE ! ---");
-                    joueur.gagnerExperience(monstre.getExperience());
-                    return true;
-                }
-
-             
-                joueur.recevoirDegats(monstre.attaquer()); 
-                
-                if (joueur.getPv() <= 0) {
-                    System.out.println("\n--- DÉFAITE ! ---");
-                    return false; 
-                }
-
-            } else if (choix.equals("2")) {
-                Random rand = new Random();
-                if (rand.nextDouble() < 0.3) { 
-                    System.out.println("🏃 Vous avez réussi à fuir !");
-                    return true;
-                } else {
-                    System.out.println("❌ Échec de la fuite ! Le monstre attaque !");
-                    joueur.recevoirDegats(monstre.attaquer());
-                    if (joueur.getPv() <= 0) {
-                        System.out.println("\n--- DÉFAITE ! ---");
-                        return false;
-                    }
-                }
-            } else {
-                System.out.println("Choix invalide. Veuillez entrer 1 ou 2.");
-            }
-        }
-        return joueur.getPv() > 0;
+    /**
+     * Finalise le mouvement du joueur sur la case qui a été libérée (après combat/destruction).
+     */
+    public void finaliserMouvementSurCible(Joueur joueur) {
+        joueur.setPos_x(cibleX);
+        joueur.setPos_y(cibleY);
     }
     
-    private Monstre genererMonstreAleatoire(int niveauJoueur) {
+    public void retirerElement(int x, int y) {
+        if (y >= 0 && y < TAILLE && x >= 0 && x < TAILLE) {
+            matrice[y][x] = VIDE;
+        }
+    }
+  
+    public Monstre genererMonstreAleatoire(int niveauJoueur) {
+        Random rand = new Random();
         int basePV = 40 + (niveauJoueur * 5);
         int baseATK = 8 + (niveauJoueur * 2);
         int baseXP = 30 + (niveauJoueur * 5);
-        
+        int baseOR = 10 + rand.nextInt(niveauJoueur * 5); 
+
+        return new Monstre("Gobelin du Donjon", basePV, baseATK, baseXP, baseOR); 
+    }
     
-        return new Monstre("Gobelin du Donjon", basePV, baseATK, baseXP);
+    // =================================================================
+    // GETTERS UTILITAIRES POUR LE GUI
+    // =================================================================
+    
+    public int getTAILLE() { return TAILLE; }
+    public int getCibleX() { return cibleX; }
+    public int getCibleY() { return cibleY; }
+    public char getMONSTRE() { return MONSTRE; }
+    public Monstre getMonstre() {
+        return new Monstre("Gobelin", 50, 10, 30, 10);
     }
 }

@@ -2,10 +2,12 @@ package metiers;
 
 public class Monstre extends Personnage {
     private int xpDonnee;
+    private int argentDonne; 
     
-    public Monstre(String nom, int pointsVie, int attaque, int xpDonnee) {
+    public Monstre(String nom, int pointsVie, int attaque, int xpDonnee, int argentDonne) { 
         super(nom, pointsVie, attaque); 
         this.xpDonnee = xpDonnee;
+        this.argentDonne = argentDonne; 
         System.out.println("Un " + nom + " apparaît ! PV: " + pointsVie);
     }
     
@@ -17,6 +19,7 @@ public class Monstre extends Personnage {
     }
 
     public int getExperience() { return xpDonnee; } 
+    public int getArgentDonne() { return argentDonne; }
     
    
     @Override

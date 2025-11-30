@@ -1,11 +1,10 @@
-
 package metiers;
 
 public abstract class Personnage {
     protected String nom;
     protected int pointsVie;
     protected int attaque;
-    protected int pvMax;
+    protected int pvMax; 
 
 
     public Personnage(String nom, int pointsVie, int attaque) {
@@ -33,6 +32,7 @@ public abstract class Personnage {
     public String getNom() { return nom; }
     public int getPv() { return pointsVie; } 
     public int getAttaque() { return attaque; }
+    public int getPvMax() { return pvMax; }
 
     public abstract void afficherStats();
 }

@@ -19,5 +19,5 @@ public class PotionDeVie {
         return soin;
     }
     
-    //
+    
 }
